@@ -1,0 +1,93 @@
+\section{Search Method}
+
+The search method used is A* with a consistent and admissible heuristic that is described in detail later.
+A* was chosen because of its speed
+in finding optimal paths and because the given problem allows the creation of good heuristics that can
+greatly speed the search if using a heuristic-based approach. Another approach could have been to
+use best-first search, but then the information about the actual cost of each state would have been lost.
+Since the heuristics we came up with were not too accurate in terms of estimating the actual cost to get to
+the goal, losing information about the actual cost would have made the search much more inefficient.
+
+Since the heuristic used is both consistent and admissible, then it made no sense not to use an expanded list.
+Indeed, not using an expanded list resulted in endless (extremely long) searches, so there it was not too
+difficult to decide against not using one.
+
+	\subsection{Heuristic}
+	
+	The heuristic used is made up of four components: distance, battery, communication, and	waiting. Each of these
+	components tries to estimate the time that the rover will spend performing the corresponding actions. The
+	global heuristic just adds up all these estimates.
+	
+	The components were designed in such a way that estimated remaining time was never accounted for more than once
+	and such that all of them were underestimates of the actual cost. This ensures that the sum of the estimates
+	will be below the actual cost, so the heuristic is admissible. Also, since each of these estimates depends on
+	the current and goal nodes and the estimation function used is increasing as the current state approaches the
+	goal, then the resulting heuristic is also consistent.
+	
+	Detailed descriptions of each of the components are found in the following sections.
+	
+		\subsubsection{Distance}
+		
+		The distance component estimates the remaining time the rover will spend driving. It does so by first estimating
+		the maximum distance it absolutely \emph{needs} to cover. This is calculated in the following way: for each of
+		the remaining drilling locations, the manhattan distance from the current location to the drilling location
+		and from the drilling location to the goal location is calculated. If there are no remaining drilling locations,
+		then only the manhattan distance from the current location to the goal location is considered. The estimate we
+		are looking for is the maximum of these distances. Once this is calculated, we estimate the time cost of
+		driving by multiplying the distance estimate with the minimum cost of driving.
+						
+		It would be nice to use a better estimate than this one. A couple alternatives were considered. First, instead
+		of considering the maximum distance from the rover's current location to a drilling site and from the drilling
+		site to the goal, we could have used a path-based approach. We quickly decided against this since this is
+		just a formulation of the travelling salesman problem. Solving that problem at every search node to calculate
+		the heuristic value would be too wasteful and slow.
+		
+		Second, we thought of using the actual cost of each path instead of the product of the minimum cost and the
+		total distance. The problem here is that this is not well-defined; moving from location \textit{A} to location
+		\textit{B} may be done through different paths that result in different costs. To choose which path to use, we
+		could just take the shortest path, but again, this would involve solving another complicated problem that
+		would take too long. Another option was to choose any random path, but this means that the heuristic function
+		would no longer be admissible, so this option was rejected too.
+		
+		Now, notice that the estimate, in the way it is implemented, works best when the time cost of driving in the
+		map is close to the minimum cost. If this is not the case, our estimate could be way below the actual cost and
+		the heuristic is not that useful.
+		
+		\subsubsection{Battery}
+		
+		The battery component estimates the remaining time the rover will spend recharging. It does so by calculating
+		the amount of battery units needed to complete the mission in terms of battery spent moving to the farthest
+		drilling site and back to the goal, battery spent drilling, and battery spent communicating. This sets a bound
+		on the minimum number of battery units necessary. If we subtract the current battery charge from this, then we
+		get an estimate for the minimum number of extra battery units that the rover will need for the mission. Since it
+		takes	one hour to charge on unit of battery, this also corresponds to the minimum amount of time the rover will
+		have to spend charging.
+		
+		\subsubsection{Communication}
+		
+		The communication component estimates the amount of time the rover will spend communicating. It does so by
+		calculating the amount of communications are still needed to complete the mission and multiplying that by the
+		communication time-cost.
+		
+		As was mentioned in Section \ref{actions}, if the rover has failed to communicate when it needed to, then an
+		insanely large number (100,000 hours) is given as the estimate.
+		
+		\subsubsection{Waiting}
+		
+		Finally, the waiting component estimates the time that the rover will have to waste while waiting in the
+		remainder of the mission. To keep things very simple, it only estimates a non-zero waiting time if the
+		current time lies during the night. If so, then it calculates the ratio of the current amount of battery
+		to the minimum amount of battery needed to do anything that is not waiting. This determines the maximum
+		number of hours the rover can spend while not waiting. Thus, subtracting this number from the number of
+		hours left until daybreak yields an estimate for the minimum amount of hours that the rover will spend
+		waiting. Notice that we only consider the minimum amount of battery spend on a non-waiting action. Why?
+		Waiting incurs a battery cost of 0, but if the rover decides to wait, then it will still waste time by
+		waiting! Also, we make things simple by only considering times that are during the night. At these times,
+		the rover cannot recharge nor communicate without waiting, so the minimum non-waiting battery cost is
+		simply given by the minimum battery cost of driving.
+		
+		This particular component of the heuristic could have been improved. For instance, if the rover has 4 units
+		of battery at 4 PM and the minimum battery cost of driving, drilling, and communicating is 1, then we can
+		conclude that it will have to waste at least 10 hours waiting. This is not incorporated into the waiting
+		component and could potentially make a big difference. It was not incorporated since it is hard to
+		determine the waiting outcomes at any arbitrary point of the day.

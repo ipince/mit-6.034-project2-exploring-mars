@@ -1,0 +1,328 @@
+<html>
+<head>
+<title>6.034 Search Code</title>
+</head>
+<body bgcolor="#f5f5f5">
+
+<h2>6.034 Search Code</h2>
+
+This is an overview of the implementation of the search module;
+hopefully, it will help you understand the actual code.  The
+description is arranged for you to read as you read the corresponding
+Scheme files and to supplement the comments.
+
+<h3> <tt> SEARCH.SCM </tt> </h3>
+
+Ignore the <tt> declare </tt> statements, they are there to help the
+compiler produce more efficient code.
+
+<p> First, we define a couple of global variables.  
+
+<ul>
+
+<li> <tt> *number-of-search-steps* </tt> keeps track of the number of
+expansions during a search.
+
+<li> <tt> *verbose* </tt> controls how much printing happens during
+the search, set it to #f to limit the amount of printing.
+
+</ul>
+
+<b>Note that we use the <tt>define-structure</tt> facility from MIT Scheme.
+This is a short hand way of defining all the accessor and modifier functions for
+simple data structures.  So, <tt>(define-structure (foo) a b)</tt> will define
+the functions: <tt>(make-foo a-val b-val)</tt>, <tt>(foo? s)</tt>, <tt>(foo-a
+s)</tt>, <tt>(foo-b s)</tt>, <tt>(set-foo-a! s a-val)</tt> and <tt>(set-foo-b!
+s b-val)</tt>.</b>
+
+<p> Now, we define the key data structure used in the implementation,
+namely that of a <b>search-node</b>, which has the following
+components:
+
+<ul>
+
+<li> <tt> cost </tt> - this is the f-value of a node, that is, the
+sum of the actual cost and the estimate.
+
+<li> <tt> actual </tt> - this is the g-value of a node, that is, the
+actual length of the path represented by this node.
+
+<li> <tt> estimate </tt> - this is the h-value of a node, that is, the
+(under)estimate of the path length to a goal.
+
+<li> <tt> state </tt> - the state corresponding to the node.
+
+<li> <tt> predecessor </tt> - the previous state along the path.
+
+<li> <tt> id </tt> - this is an arbitrary (but unique) number used
+internally to identify the node.
+
+</ul>
+
+<p> The key function is <tt>SEARCH</tt> which accepts the following
+arguments:
+
+<ul>
+
+<li> <tt> goal </tt> - the goal state or a procedure that returns #t when a goal
+state is reached.
+
+<li> <tt> successors </tt> - a function that is given a search-node
+and returns a list of descendant nodes.  This usually involves a call
+to the <tt> extend-node </tt> function defined below.
+
+<li> <tt> pending </tt> - this is Q in our slides, implemented by a
+function that accepts a number of messages that enable adding and
+removing nodes, finding the best entries, etc.  The details are in
+<tt> SEARCH-Q.SCM </tt>.
+
+<li> <tt> expanded </tt> - an "expanded list" implemented by a
+function that accepts a number of messages that enable adding and
+removing nodes as well as checking for their presence.  The details
+are in <tt> SEARCH-Q.SCM </tt>.  This can be #f.
+
+<li> <tt> visited </tt> - a "visited list" implemented similarly to
+expanded.  This can be #f.
+
+</ul>
+
+<p> The <tt> SEARCH </tt> function is quite simple.  You should note that
+the <tt> pending </tt> list in the code is what we called the search
+<tt> Q </tt> in the notes.
+
+<ol>
+
+<li> If the pending list is empty, return indicating failure.
+
+<li> Let current be the next element in pending.  The implementation
+of the pending list will determine what node is next, for example, it
+could be the one with the least cost or simply the most recently added
+node.
+
+<li> If we have an expanded list and the state of the current node is
+in the expanded list, then discard it and call search again. 
+
+<li> If the node's state is a goal, display the path and return the
+current node.
+
+<li> Update the pending list by calling <tt> SEARCH-UPDATE </tt> with
+the successors of the current node and call search again.
+
+</ol>
+
+<p> The <tt> SEARCH-UPDATE </tt> function form updates the pending,
+expanded and visited lists.  In its simplest form, it adds the current
+node to the expanded list (if present) and then filters out any nodes
+whose states are in the visited or expanded lists (if present) and
+adds them to the pending and to the visited list (if present).  There
+is a much more elaborate version of this function defined in <tt>
+SEARCH-UPDATE.SCM </tt>, we will look at that later since it deals
+with issues arising from heuristics that are not consistent.
+
+<p> Now we look at a few operations on search-nodes.  The key one is <tt>
+EXTEND-NODE </tt> which has the following arguments:
+
+<ul>
+
+<li> <tt> node </tt> - a search node to be expanded,
+
+<li> <tt> neighbors </tt> - a function that accepts a state and returns a set
+list of graph links (see below).
+
+<li> <tt> link-cost </tt> - a function that is called with a link and returns
+the link (edge) cost.  This argument could be #f for any-path searches.
+
+<li> <tt> heuristic </tt> - a function that is called with a state and returns
+the estimate of distance to a goal - the goal is not passed as an argument, the
+function has it built in.  This argument could be #f when no heuristic is
+available.
+
+</ul>
+
+<tt>EXTEND-NODE</tt> returns a list of new search-nodes to
+add to the pending list.  Either or both of the functional arguments may be <tt>
+#f </tt>, for example, in depth-first search where no costs enter into the
+algorithm.  The <tt> EXTEND-NODE </tt> function will be used by the different
+search methods to implement the <tt> successors </tt> argument to the main <tt>
+SEARCH </tt> function.
+
+<p> The implementation of <tt> EXTEND-NODE </tt> is relatively simple
+- it is structured as a loop over the list of neighboring states of
+the input node's state.  The loop constructs a search-node for each
+neighboring state, except those states that are predecessors to the
+input node, that is, that are already on the path specified by the
+input node.  We <b> never </b> want to create a loop in a path and so
+we make sure that doesn't happen here.  If we are using a visited
+list, then this check for looping is redundant and may be dropped.
+
+<p> Note that we could have avoided some work of creating nodes we
+will not expand by combining the operation of <tt> SEARCH-UPDATE </tt>
+and <tt> EXTEND-NODE </tt>.  However, this would have made it harder
+to change the functionality of <tt> SEARCH-UPDATE </tt> later.  We
+have chosen some inefficiency to enable the extra modularity.  There
+are other ways of skinning this cat, but they make the code a bit
+harder to understand.
+
+<p> Note that <tt> EXTEND-NODE </tt> computes all the costs for each
+of the new nodes.  The actual costs are computed by calling the
+heuristic and link-cost functions, if provided.  Otherwise, the costs
+are assumed to be zero.
+
+<p> Aside from a few utilities (also included in the file), we now
+have what we need to implement the various search methods we have
+discussed.  All the methods follow the same pattern:
+
+<ul>
+
+<li> Define a heuristic function for a state, if appropriate for the
+method.
+
+<li> Verify the optional arguments to the function.  Two of these
+arguments (<tt> use-visited </tt> and <tt> use-expanded </tt>) specify
+whether a visited and/or expanded list should be used.  Another
+argument (<tt> use-wt </tt>) specify whether Scheme's Weighted-Tree
+package (a form of priority queue) should be used for implementing
+the pending list.
+
+<li> Create a start node corresponding to the start state.
+
+<li> Create visited and/or expanded lists, as indicated by the
+arguments.  The "lists" are created by calling <tt> MAKE-STATE-LIST
+</tt> which is defined in <tt> SEARCH-Q.SCM </tt>.
+
+<li> Initialize <tt> *number-of-search-steps* </tt> to 0 - this will
+keep track of the number of expansions done during the search.
+
+<li> Call the <tt> SEARCH </tt> function with the appropriate
+arguments.  Note that depending on the type of search (and the args),
+the pending list is created by calling one of <tt> MAKE-STACK,
+MAKE-QUEUE, MAKE-PQ, MAKE-WT-PQ </tt>, all of which are defined in
+<tt> SEARCH-Q.SCM </tt>.
+
+</ul>
+
+<p> So far we have not really said what the representation of a state
+is.  The search code accesses states using the following interface.
+We have given a very simple implementation for a trivial list-based
+implementation of graphs.
+
+<ul>
+
+<li> <tt> state-neighbors </tt> - given a state and a graph, return a list of
+"links", which specify the neighboring state and the cost of the link
+to that state (in a given graph).
+
+<ul>
+
+<li> <tt> neighbor-state </tt> - given a link, get the state.
+
+<li> <tt> neighbor-cost </tt> - given a link, get the cost.
+
+</ul>
+
+<li> <tt> state-heuristic-value </tt> - get the heuristic value for a
+state (given the goal state).
+
+<li> <tt> state-name </tt> - return a name that can be printed compactly.
+
+</ul>
+
+You can find examples of simple graphs from the notes and exercises at
+the bottom of the file.
+
+<h3> <tt> SEARCH-Q.SCM </tt> </h3>
+
+In this file, we have the definitions of the different types of search Q
+(stacks, queues and priority queues) and the state-lists used to implement
+visited and expanded lists.  All of these entities are implemented in
+"message-passing" style, that is, as functions that take a message name and some
+set of arguments and perform the operation on some encapsulated data.
+
+<p> All of the different implementations of search Q, implement the following
+operations:
+
+<ul>
+
+<li> (Q 'empty?) - return #t or #f indicating whether there are any nodes in Q.
+
+<li> (Q 'next) - return a node and removes it from the search-queue
+
+<li> (Q 'add <list of nodes>) - add the nodes to the search-queue
+
+<li> (Q 'remove node) - remove the nodes from the search-queue
+
+<li> (Q 'count) - return a count of nodes in the search-queue
+
+<li> (Q 'summary) - prints a summary of work done
+
+</ul>
+
+<p> We have two types of implementations of search-Qs, one uses lists and the
+other uses MIT Scheme's Weight-Balanced Trees (wt-tree) to implement Priority
+Queues.  You should find that for most purposes, the wt-tree implementation is
+substantially faster than the list implementation.  For the simple queue and
+stack operations needed for depth-first and breadth-first, the list
+implementations are all that one needs.
+
+<p> There are some subtleties in the implementation of priority-queues using the
+wt-tree package.  The most important is that a wt-tree only keeps one entry with
+a given "key".  So, for example, we cannot use just the cost of a node as its
+key, since there will generally be many nodes with a given cost.  So, we have to
+construct a key that incorporates both the cost and a unique id associated with
+the node when it is added to the PQ.  Then, there's a complete order function
+(<tt> SEARCH-NODE-< </tt>) which compares nodes first on the basis of their cost
+then, if they are tied, on the basis of their id.  So, nodes with the same cost
+are retrieved in the order they were added to the PQ.
+
+<p> The file also defines <tt> state-lists </tt>, these support the following
+operations:
+
+<ul>
+
+<li> (S 'member state) - returns node corresponding to that state or #f
+
+<li> (S 'remove node) - remove a node from list
+
+<li> (S 'add <list of nodes>) - add nodes to list
+
+<li> (S 'count) - returns number of nodes in list
+
+</ul>
+
+The state-lists are implemented by hash-tables, these provide constant-time
+access to the nodes in the state-list given a key (the state-name in this case).
+Note that only one node per state will be held in these state-lists.
+
+<p> The remaining details of the implementation can be obtained by reading the code.
+
+<h3> <tt> SEARCH-UPDATE.SCM </tt> </h3>
+
+In this file is the skeleton for the more complete <tt> SEARCH-UPDATE </tt>
+function which can handle heuristic estimates that are not consistent.
+
+<p> This <tt> SEARCH-UPDATE </tt> function has the same outline as the simple
+one in <tt> SEARCH.SCM </tt>, the difference is in the criteria used to keep
+nodes for adding to the pending list in the presence of an expanded or visited
+list.  In the general case when we have both an expanded and a visited list
+present (see below), we call <tt> KEEP-NODE? </tt> to decide whether we want to
+keep the node.  Otherwise, we just test whether the node is present in the
+visited or expanded list and keep it if it's not present.  So, it's <tt>
+KEEP-NODE? </tt> that is the key differences between this version of <tt>
+SEARCH-UPDATE </tt> and the simple one we saw earlier.
+
+<p> You may be wondering why we use both the pending and visited lists at the
+same time.  We are really using the visited list as a way of finding out whether
+a node with a give state is in pending.  A node that is not in expanded but is
+in visited must be pending.  We want that so we can avoid adding multiple nodes
+for the same state to pending.  Note that we remove nodes from visited upon
+expansion (assuming we also have an expanded list).
+
+<p> The function <tt> KEEP-NODE? </tt> needs to handle the situation when the
+new node's state is present in the expanded list (and visited of course) or just
+in the visited list.  If the actual path to the new node's state is shorter than
+the previously found path to that state, we want to consider the new node by
+adding it to pending (and visited) Also, we need to remove the old node from any
+of the pending, visited or expanded lists where it may be found.
+
+</body>
+</html>

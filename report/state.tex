@@ -1,0 +1,36 @@
+\section{State Representation}
+
+The state representation used is very simple. It consists of a list of assertions that can hold all the
+information about the state. The possible assertions are the following:
+
+\begin{description}
+	\item[\texttt{- (action <action>):}] Indicates the action that led to this state.
+	\item[\texttt{- (at (x y)):}] Indicates the current plane location.
+	\item[\texttt{- (time t):}] Indicates the time at which the rover reached this state.
+	\item[\texttt{- (battery b):}] Indicates the current battery charge of the rover.
+	\item[\texttt{- (need-sample (x y)):}] Indicates that the rover needs a sample from location \texttt{(x y)}.
+	\item[\texttt{- (have-sample (x y)):}] Indicates that the rover holds a sample from location \texttt{(x y)}.
+	\item[\texttt{- (need-communicate p):}] Indicates that the rover needs to communicate in period \texttt{p} (day).
+	\item[\texttt{- (have-communicated p):}] Indicates that the rover has communicated in period \texttt{p}.
+\end{description}
+
+The goal state can then be represented as a list of \texttt{have} assertions, together with an \texttt{at}
+assertion to indicate the goal location, which should be the lander, located at (0,0). The goal state should
+not care about the rover's battery, the last action the rover took, nor the time at which the rover ended
+the mission.
+
+Now, if the \texttt{action}, \texttt{time}, \texttt{battery}, and \texttt{need} assertions are not needed to
+encode the goal state, then why should we keep track of them in the state representation? It turns out that
+this information is needed for a variety of purposes within our search framework. The action is needed to
+reconstruct the search path; the time is needed to determine the outcome of certain actions (e.g., to recharge and
+communicate, we need to know whether it is daylight and whether we are within a communication window,
+respectively), to calculate heuristics, and to calculate the time-cost of the state; the battery is needed for
+the same reasons; the need assertions are needed to determine whether the robot cares about performing some
+actions (e.g., we don't want the rover to drill unless it needs to, because if it had the choice, the branching
+factor of the search tree would be huge and the search would take ages).
+
+Lastly, notice that with this representation, the goal state must specify on what communication periods
+must the rover communicate, but this information may not be known a priori. To go around this issue, we just
+plan missions as if the rover did not need to communicate, and if the optimal plan ends up requiring
+communication to be in accordance with the problem definition, then we add the corresponding
+\texttt{need-communicate} assertions and replan.

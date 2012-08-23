@@ -1,0 +1,11 @@
+\BOOKMARK [1][-]{section.1}{Overview}{}
+\BOOKMARK [1][-]{section.2}{State Representation}{}
+\BOOKMARK [1][-]{section.3}{Action Representations}{}
+\BOOKMARK [1][-]{section.4}{Search Method}{}
+\BOOKMARK [2][-]{subsection.4.1}{Heuristic}{section.4}
+\BOOKMARK [3][-]{subsubsection.4.1.1}{Distance}{subsection.4.1}
+\BOOKMARK [3][-]{subsubsection.4.1.2}{Battery}{subsection.4.1}
+\BOOKMARK [3][-]{subsubsection.4.1.3}{Communication}{subsection.4.1}
+\BOOKMARK [3][-]{subsubsection.4.1.4}{Waiting}{subsection.4.1}
+\BOOKMARK [1][-]{section.5}{Performance}{}
+\BOOKMARK [1][-]{section.6}{Conclusion}{}

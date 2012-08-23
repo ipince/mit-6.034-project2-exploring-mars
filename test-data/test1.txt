@@ -1,0 +1,50 @@
+SOLUTION
+(((action ()) (at (0 0)) (time 0) (battery 10) (need-sample (1 1)) (need-sample (2 1)) (need-communicate 0))
+ ((action (go x+)) (at (1 0)) (battery 8) (time 1) (need-sample (1 1)) (need-sample (2 1)) (need-communicate 0))
+ ((action (go y+)) (at (1 1)) (battery 6) (time 2) (need-sample (1 1)) (need-sample (2 1)) (need-communicate 0))
+ ((action (drill (1 1))) (have-sample (1 1)) (battery 5) (time 3) (at (1 1)) (need-sample (2 1)) (need-communicate 0))
+ ((action (recharge)) (battery 10) (time 11) (have-sample (1 1)) (at (1 1)) (need-sample (2 1)) (need-communicate 0))
+ ((action (communicate)) (have-communicated 0) (battery 9) (time 11.25) (have-sample (1 1)) (at (1 1)) (need-sample (2 1)))
+ ((action (recharge)) (battery 10) (time 12.25) (have-communicated 0) (have-sample (1 1)) (at (1 1)) (need-sample (2 1)))
+ ((action (go x+)) (at (2 1)) (battery 8) (time 13.25) (have-communicated 0) (have-sample (1 1)) (need-sample (2 1)))
+ ((action (drill (2 1))) (have-sample (2 1)) (battery 7) (time 14.25) (at (2 1)) (have-communicated 0) (have-sample (1 1)))
+ ((action (go x-)) (at (1 1)) (battery 5) (time 15.25) (have-sample (2 1)) (have-communicated 0) (have-sample (1 1)))
+ ((action (go x-)) (at (0 1)) (battery 3) (time 16.25) (have-sample (2 1)) (have-communicated 0) (have-sample (1 1)))
+ ((action (go y-)) (at (0 0)) (battery 1) (time 17.25) (have-sample (2 1)) (have-communicated 0) (have-sample (1 1))))
+
+
+NO HEURISTIC
+ Time= 637901
+ Length of queue= 8412 Cost of first node= 17.25 Expansions = 5501 Nodes added = 21250
+ Final: ((action (go y-)) (at (0 0)) (battery 1) (time 17.25) (have-sample (2 1)) (have-communicated 0) (have-sample (1 1))) Cost= 17.25 Actual Cost= 17.25 Estimate= 0
+ Path length = 12
+
+DISTANCE
+ Time= 17590
+ Length of queue= 1530 Cost of first node= 17.25 Expansions = 644 Nodes added = 2697
+ Final: ((action (go y-)) (at (0 0)) (battery 1) (time 17.25) (have-sample (1 1)) (have-sample (2 1)) (have-communicated 0)) Cost= 17.25 Actual Cost= 17.25 Estimate= 0
+ Path length = 11
+
+BATTERY
+ Time= 17419
+ Length of queue= 2088 Cost of first node= 17.25 Expansions = 650 Nodes added = 3123
+ Final: ((action (go y-)) (at (0 0)) (battery 1) (time 17.25) (have-sample (2 1)) (have-communicated 0) (have-sample (1 1))) Cost= 17.25 Actual Cost= 17.25 Estimate= 0
+ Path length = 12
+
+COMMUNICATE
+ Time= 236479
+ Length of queue= 4832 Cost of first node= 17.25 Expansions = 3233 Nodes added = 12354
+ Final: ((action (go y-)) (at (0 0)) (battery 1) (time 17.25) (have-sample (2 1)) (have-communicated 0) (have-sample (1 1))) Cost= 17.25 Actual Cost= 17.25 Estimate= 0
+ Path length = 12
+
+WASTED-TIME
+ Time= 663135
+ Length of queue= 8412 Cost of first node= 17.25 Expansions = 5501 Nodes added = 21250
+ Final: ((action (go y-)) (at (0 0)) (battery 1) (time 17.25) (have-sample (2 1)) (have-communicated 0) (have-sample (1 1))) Cost= 17.25 Actual Cost= 17.25 Estimate= 0
+ Path length = 12
+
+ALL
+ Time= 1551
+ Length of queue= 416 Cost of first node= 17.25 Expansions = 107 Nodes added = 550
+ Final: ((action (go y-)) (at (0 0)) (battery 1) (time 17.25) (have-sample (1 1)) (have-sample (2 1)) (have-communicated 0)) Cost= 17.25 Actual Cost= 17.25 Estimate= 0
+ Path length = 11

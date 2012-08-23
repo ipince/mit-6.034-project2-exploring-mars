@@ -1,0 +1,52 @@
+\section{Performance}
+
+We performed tests in settings with different maps, costs, initial, and goal states. In this section, we only
+illustrate three of them. The following are descriptions of the three settings:
+
+\begin{description}
+	\item[Test 1] Uniform map with minimum time and battery driving costs of 1 and 2, respectively; samples
+		needed from (1 1) and (2 1); communication needed in period 0; default initial conditions (location
+		(0 0), time 0, and battery 10).
+	\item[Test 2] Same scenario as above, except that the minimum costs are now both 1, and there is an
+		added drill location at (3 3).
+	\item[Test 3] Map with minimum time and battery costs of 1, but where the rover is almost surrounded
+		by high-cost terrain. It only needs to retrieve one sample, located at (3 0), which is also the goal
+		location. However, the direct path to (3 0) is blocked by high-cost terrain. In spite of this, it
+		is still better to go through the high-cost terrain to finish the mission (ticky map!).
+\end{description}
+
+For each setting, we ran the search procedure with no heuristic, using only one component of the heuristic, and
+using the complete heuristic. The results are shown in Table \ref{times}. The entries in each table correspond
+to the time taken, in seconds, followed by the number of nodes that were expanded. If an entry is ``endless,''
+it means that the search had not finished after over an hour.
+
+\begin{table}
+ 	\caption{Performance (time, expanded) on three settings using different heuristics.}
+   \centering
+ 	\begin{tabular}{|l|c|c|c|c|c|c|}
+ 		\hline
+ 		\textbf{Setting} & \textbf{No Heuristic} & \textbf{Distance} & \textbf{Battery} & \textbf{Communication} & \textbf{Waiting} & \textbf{All}\\ \hline
+ 		Test 1           & 637.9, 5,501  & 17.6, 644   & 17.4, 650    & 236.5, 3,233 & 663.1, 5,501 & 1.5, 107      \\ \hline
+ 		Test 2           & endless       & endless     & endless      & endless      & endless      & 326.5, 2,956  \\ \hline
+ 		Test 3           & endless       & 30.1, 1,073 & 570.8, 4,341 & endless      & endless      & 184.2, 2,677  \\ \hline
+ 	\end{tabular}
+ 	\label{times}
+\end{table}
+
+From the table, we can see that the distance and battery components of the heuristic do a much better job than
+the other two. It is impressive how the search time dropped from 637 seconds to 1.5 in the first test when using
+no heuristic and when using the complete heuristic. It is also interesting to note that using only the waiting
+component yielded a worse result than when using no heuristic at all. The number of expanded nodes and the solution
+itself were the same. This means that the heuristic was not very useful and we had to pay the time cost of
+calculating it many thousand times.
+
+However, notice that using the complete heuristic is not always the best option. The last test is a good example.
+In this case, the rover needs to overcome some rough terrain in order to get to its goal. When using the distance
+component only, the search is biased towards the goal location, which makes it end quickly. On the other hand,
+then using the battery component we get much worse results. This happens because since rough terrain incurs
+big battery costs. When the rover moves to a rough terrain location, it loses a lot of battery. However,
+its battery estimate is only decreased by a little, since we are only considering the minimum cost. Hence, it
+appears as if the rover had lost some units of battery in vain. Because of this, the search will try to avoid this
+path and go around the rough terrain. This makes the search take a lot longer, as can be seen in the table.
+The complete heuristic then gives a worse result than a distance-based heuristic by itself because the battery
+estimate plays a role in the complete one.

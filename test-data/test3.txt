@@ -1,0 +1,39 @@
+SOLUTION
+(((action ()) (at (0 0)) (time 0) (battery 10) (need-sample (3 0)) (need-communicate 0))
+ ((action (go x+)) (at (1 0)) (battery 9) (time 1) (need-sample (3 0)) (need-communicate 0))
+ ((action (go x+)) (at (2 0)) (battery 4) (time 6) (need-sample (3 0)) (need-communicate 0))
+ ((action (recharge)) (battery 10) (time 12) (at (2 0)) (need-sample (3 0)) (need-communicate 0))
+ ((action (communicate)) (have-communicated 0) (battery 9) (time 12.25) (at (2 0)) (need-sample (3 0)))
+ ((action (recharge)) (battery 10) (time 13.25) (have-communicated 0) (at (2 0)) (need-sample (3 0)))
+ ((action (go x+)) (at (3 0)) (battery 5) (time 18.25) (have-communicated 0) (need-sample (3 0)))
+ ((action (drill (3 0))) (have-sample (3 0)) (battery 4) (time 19.25) (at (3 0)) (have-communicated 0)))
+
+NO HEURISTIC
+ Time= 637901
+?
+
+DISTANCE
+ Time= 30140
+ Length of queue= 2624 Cost of first node= 18.25 Expansions = 1073 Nodes added = 4328
+ Final: ((action (drill (3 0))) (have-sample (3 0)) (battery 3) (time 18.25) (at (3 0)) (have-communicated 0)) Cost= 18.25 Actual Cost= 18.25 Estimate= 0
+ Path length = 7
+
+BATTERY
+ Time= 570813
+ Length of queue= 9595 Cost of first node= 18.25 Expansions = 4341 Nodes added = 19555
+ Final: ((action (drill (3 0))) (have-sample (3 0)) (battery 3) (time 18.25) (at (3 0)) (have-communicated 0)) Cost= 18.25 Actual Cost= 18.25 Estimate= 0
+ Path length = 7
+
+COMMUNICATE
+ Time= 236479
+?
+
+WASTED-TIME
+ Time= 663135
+?
+
+ALL
+ Time= 184219
+ Length of queue= 5662 Cost of first node= 26.0 Expansions = 2677 Nodes added = 10621
+ Final: ((action (drill (3 0))) (have-sample (3 0)) (battery 4) (time 19.25) (at (3 0)) (have-communicated 0)) Cost= 26.0 Actual Cost= 19.25 Estimate= 6.75
+ Path length = 8

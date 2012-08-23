@@ -1,0 +1,50 @@
+SOLUTION
+(((action ()) (at (0 0)) (time 0) (battery 10) (need-sample (1 1)) (need-sample (2 1)) (need-sample (3 3)) (need-communicate 0))
+ ((action (go x+)) (at (1 0)) (battery 9) (time 1) (need-sample (1 1)) (need-sample (2 1)) (need-sample (3 3)) (need-communicate 0))
+ ((action (go x+)) (at (2 0)) (battery 8) (time 2) (need-sample (1 1)) (need-sample (2 1)) (need-sample (3 3)) (need-communicate 0))
+ ((action (go x+)) (at (3 0)) (battery 7) (time 3) (need-sample (1 1)) (need-sample (2 1)) (need-sample (3 3)) (need-communicate 0))
+ ((action (go y+)) (at (3 1)) (battery 6) (time 4) (need-sample (1 1)) (need-sample (2 1)) (need-sample (3 3)) (need-communicate 0))
+ ((action (go y+)) (at (3 2)) (battery 5) (time 5) (need-sample (1 1)) (need-sample (2 1)) (need-sample (3 3)) (need-communicate 0))
+ ((action (go y+)) (at (3 3)) (battery 4) (time 6) (need-sample (1 1)) (need-sample (2 1)) (need-sample (3 3)) (need-communicate 0))
+ ((action (recharge)) (battery 10) (time 12) (at (3 3)) (need-sample (1 1)) (need-sample (2 1)) (need-sample (3 3)) (need-communicate 0))
+ ((action (communicate)) (have-communicated 0) (battery 9) (time 12.25) (at (3 3)) (need-sample (1 1)) (need-sample (2 1)) (need-sample (3 3)))
+ ((action (drill (3 3))) (have-sample (3 3)) (battery 8) (time 13.25) (have-communicated 0) (at (3 3)) (need-sample (1 1)) (need-sample (2 1)))
+ ((action (go x-)) (at (2 3)) (battery 7) (time 14.25) (have-sample (3 3)) (have-communicated 0) (need-sample (1 1)) (need-sample (2 1)))
+ ((action (recharge)) (battery 10) (time 17.25) (at (2 3)) (have-sample (3 3)) (have-communicated 0) (need-sample (1 1)) (need-sample (2 1)))
+ ((action (go y-)) (at (2 2)) (battery 9) (time 18.25) (have-sample (3 3)) (have-communicated 0) (need-sample (1 1)) (need-sample (2 1)))
+ ((action (go y-)) (at (2 1)) (battery 8) (time 19.25) (have-sample (3 3)) (have-communicated 0) (need-sample (1 1)) (need-sample (2 1)))
+ ((action (drill (2 1))) (have-sample (2 1)) (battery 7) (time 20.25) (at (2 1)) (have-sample (3 3)) (have-communicated 0) (need-sample (1 1)))
+ ((action (go x-)) (at (1 1)) (battery 6) (time 21.25) (have-sample (2 1)) (have-sample (3 3)) (have-communicated 0) (need-sample (1 1)))
+ ((action (drill (1 1))) (have-sample (1 1)) (battery 5) (time 22.25) (at (1 1)) (have-sample (2 1)) (have-sample (3 3)) (have-communicated 0))
+ ((action (go x-)) (at (0 1)) (battery 4) (time 23.25) (have-sample (1 1)) (have-sample (2 1)) (have-sample (3 3)) (have-communicated 0))
+ ((action (go y-)) (at (0 0)) (battery 3) (time 24.25) (have-sample (1 1)) (have-sample (2 1)) (have-sample (3 3)) (have-communicated 0)))
+
+NO HEURISTIC
+ Endless
+
+DISTANCE
+ Time= 17590
+ Length of queue= 1530 Cost of first node= 17.25 Expansions = 644 Nodes added = 2697
+ Final: ((action (go y-)) (at (0 0)) (battery 1) (time 17.25) (have-sample (1 1)) (have-sample (2 1)) (have-communicated 0)) Cost= 17.25 Actual Cost= 17.25 Estimate= 0
+ Path length = 11
+
+BATTERY
+ Time= 24075
+ Length of queue= 2356 Cost of first node= 17.25 Expansions = 752 Nodes added = 3618
+ Final: ((action (go y-)) (at (0 0)) (battery 1) (time 17.25) (have-sample (2 1)) (have-communicated 0) (have-sample (1 1))) Cost= 17.25 Actual Cost= 17.25 Estimate= 0
+ Path length = 12
+
+COMMUNICATE
+ Time= 236479
+ Length of queue= 4832 Cost of first node= 17.25 Expansions = 3233 Nodes added = 12354
+ Final: ((action (go y-)) (at (0 0)) (battery 1) (time 17.25) (have-sample (2 1)) (have-communicated 0) (have-sample (1 1))) Cost= 17.25 Actual Cost= 17.25 Estimate= 0
+ Path length = 12
+
+WASTED-TIME
+ Endless
+
+ALL
+ Time= 326485
+ Length of queue= 8109 Cost of first node= 27.0 Expansions = 2956 Nodes added = 14019
+ Final: ((action (go y-)) (at (0 0)) (battery 3) (time 24.25) (have-sample (1 1)) (have-sample (2 1)) (have-sample (3 3)) (have-communicated 0)) Cost= 27.0 Actual Cost= 24.25 Estimate= 2.75
+ Path length = 19

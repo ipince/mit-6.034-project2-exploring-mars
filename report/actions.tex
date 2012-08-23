@@ -1,0 +1,45 @@
+\section{Action Representations} \label{actions}
+
+The action representations (or procedures) were also designed with a minimalistic approach. We wanted to
+have the least amount of actions possible at any given state, so that the branching factor of the search
+tree would be as small as possible. Notice that it is not enough to have few action procedures. Each of
+these is a function of the current state and a set of arguments. The number of arguments and their
+domains also affect the branching factor, which is why we tried to make each action procedure take as few
+arguments as possible and make their domains as retrictive as possible.
+
+Following this approach, we ended up having one action procedure per physical action, except for waiting.
+This is another key point. Since we are optimizing for time, there is no point in waiting unless the rover
+is forced to. This can happen if it needs to recharge during the night or if it is waiting for the next
+communication window. Thus, we eliminated the need of having an action procedure for waiting by
+incorporating the waiting effects into the recharge and communicate procedures.
+
+With this in mind, we designed and implemented the following set of actions:
+
+\begin{description}
+	\item[\texttt{- (go d):}] The go action enables the rover to drive from its current location (kept in
+		the state) to a neighboring location. The direction argument \texttt{d} can assume the values
+		\texttt{x-}, \texttt{x+}, \texttt{y-}, or \texttt{y+}, and specifies which ending location to go to.
+		This the only action that takes an argument.
+	\item[\texttt{- (drill):}] The drilling action enables the rover to take a sample from its current
+		location. The rover must be in need of a sample from that location in order to be able to take one.
+	\item[\texttt{- (recharge):}] The recharge action completely recharges the rover's battery. This
+		action incorporates all the details involving the recharging specification. For instance, if recharge
+		is performed during the night, then the rover will wait until daylight to recharge, so the resulting
+		state could possibly be over 10 hours in the future.
+	\item[\texttt{- (communicate):}] The communicate action makes the rover communicate only if it
+		actually \emph{needs} to communicate in the current period. If it tries to communicate while
+		not being inside a communication window, then it will wait until the next available window and
+		communicate then.
+\end{description}
+
+As a remark, notice that at each state, there is at most 7 things the rover could do: move in one of four
+possible directions, drill, recharge (and wait as needed in accordance with the problem definition), or
+communicate (and wait as needed).
+
+There are some requirements that have not been accounted for with the current state and action
+representations. For instance, if a rover needs to communicate on period 3, but the communication window
+corresponding to that period has already passed, then it is impossible for the rover to complete the mission
+successfully. Instead of performing checks for this in each action and not allowing the rover to proceed
+once it has reached this state, we chose to keep things simple and account for this within our heuristic
+function. Thus, if the rover has failed to communicate, our heuristic estimate will be some insanely large
+number, which will make the search algorithm avoid such path.

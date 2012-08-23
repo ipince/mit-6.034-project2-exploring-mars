@@ -1,0 +1,34 @@
+\section{Overview}
+
+This paper tackles the problem of planning a rover's mission in Mars. The rover starts the mission at the
+lander with full battery. Its objective is to retrieve samples from a set of specified map locations,
+communicate with an orbiting satellite during specified communication windows, and return to the lander.
+Planning a mission involves determining the sequence of actions that the rover will follow to accomplish
+the mission.
+
+The following are descriptions of the actions the rover can perform:
+
+\begin{description}
+	\item[Drive] The rover can move throughout a grid map (lattice plane) by driving to any of the 4 adjacent
+		points to its current location. It can drive at any time of day. Driving incurs a time cost and a battery
+		cost that may depend on the rover's current location.
+	\item[Recharge] The rover may choose to recharge its battery. Once it starts recharging, it must keep
+		recharging until the battery is fully charged. The rover can only charge during the day. That is, if night
+		falls during recharging, the rover will wait until daybreak and resume recharging. Each hour spent
+		recharging results in a battery unit. A fully charged battery has 10 battery units.
+	\item[Drill] The rover can drill to take a scientific sample from its current location. This takes 1 hour and
+		requires 1 unit of battery.
+	\item[Communicate] While on the mission, the rover must start communication in every communication window. These
+		occur every day at 10 AM Mars time (see assumptions below) and last for 2 hours. Communicating takes 15
+		minutes and requires 1 unit of battery.
+	\item[Wait] The rover can sit and do nothing without consuming any battery.
+\end{description}
+
+None of these actions can overlap in time. Additionally, we assume the Mars day has 24 hours, daylight hours
+are from 6 AM to 6 PM, and the landing occurs at midnight, Mars time.
+
+Given this setup, we tackled the problem from a search perspective. This paper describes the state
+and action representations used to model the problem, the search approach used, and an analysis of the
+time performance of the chosen method. In general, a minimalistic approach was used to model state and
+actions, in order to increase the performance of the search. The search method used was A* with a heuristic
+that incorporated four different estimates: time spent moving, recharging, communicating, and waiting.
